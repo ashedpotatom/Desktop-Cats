@@ -8,7 +8,7 @@ creates a virtual environment at launch.
 
 - Join the Apple Developer Program.
 - Create an App Store Connect app record for macOS.
-- Choose a final bundle ID, for example `com.yourcompany.desktopcat`.
+- Choose a final bundle ID, for example `com.yourcompany.desktopcats`.
 - Create or download the signing certificates required by your account.
 
 ## Local Build
@@ -17,8 +17,8 @@ Install build tooling and create the app bundle:
 
 ```bash
 cd work/source
-BUNDLE_ID="com.yourcompany.desktopcat" \
-APP_NAME="Desktop Cat" \
+BUNDLE_ID="com.yourcompany.desktopcats" \
+APP_NAME="Desktop Cats" \
 APP_VERSION="1.0.0" \
 BUILD_NUMBER="1" \
 zsh packaging/build_app_store.sh
@@ -29,7 +29,7 @@ To create a signed package, provide signing identities:
 ```bash
 APP_SIGN_IDENTITY="Apple Distribution: Your Name (TEAMID)" \
 INSTALLER_SIGN_IDENTITY="3rd Party Mac Developer Installer: Your Name (TEAMID)" \
-BUNDLE_ID="com.yourcompany.desktopcat" \
+BUNDLE_ID="com.yourcompany.desktopcats" \
 zsh packaging/build_app_store.sh
 ```
 

@@ -4,8 +4,8 @@ import os
 from setuptools import setup
 
 
-APP_NAME = os.environ.get("APP_NAME", "Desktop Cat")
-BUNDLE_ID = os.environ.get("BUNDLE_ID", "com.example.desktopcat")
+APP_NAME = os.environ.get("APP_NAME", "Desktop Cats")
+BUNDLE_ID = os.environ.get("BUNDLE_ID", "com.example.desktopcats")
 VERSION = os.environ.get("APP_VERSION", "1.0.0")
 
 

@@ -1,13 +1,13 @@
 # Mac App Store 배포 순서 체크리스트
 
-이 문서는 현재 Desktop Cat 프로젝트를 Mac App Store에 올리기 위한 순서입니다.
+이 문서는 현재 Desktop Cats 프로젝트를 Mac App Store에 올리기 위한 순서입니다.
 지금 프로젝트는 실행 스크립트 형태로 잘 동작하지만, App Store에는 `.app` 번들과
 서명된 설치 패키지로 제출해야 합니다.
 
 ## 1. 먼저 결정할 것
 
-- 앱 이름: 예시 `Desktop Cat`
-- Bundle ID: 예시 `com.yourname.desktopcat`
+- 앱 이름: 예시 `Desktop Cats`
+- Bundle ID: 예시 `com.yourname.desktopcats`
 - 버전: 예시 `1.0.0`
 - 빌드 번호: 예시 `1`
 - 배포 방식: Mac App Store
@@ -74,8 +74,8 @@ packaging/requirements-build.txt
 ```bash
 cd /Users/pn020/Documents/Codex/2026-07-07/munucrafts-py-desktoppet-ducky-https-github/outputs/desktop-cat-pet
 
-BUNDLE_ID="com.yourname.desktopcat" \
-APP_NAME="Desktop Cat" \
+BUNDLE_ID="com.yourname.desktopcats" \
+APP_NAME="Desktop Cats" \
 APP_VERSION="1.0.0" \
 BUILD_NUMBER="1" \
 zsh packaging/build_app_store.sh
@@ -84,7 +84,7 @@ zsh packaging/build_app_store.sh
 성공하면 다음 파일이 생깁니다.
 
 ```text
-dist/Desktop Cat.app
+dist/Desktop Cats.app
 ```
 
 ## 6. 로컬에서 앱 테스트
@@ -92,7 +92,7 @@ dist/Desktop Cat.app
 앱 번들을 직접 실행해서 확인합니다.
 
 ```bash
-open "dist/Desktop Cat.app"
+open "dist/Desktop Cats.app"
 ```
 
 확인할 것:
@@ -114,8 +114,8 @@ cd /Users/pn020/Documents/Codex/2026-07-07/munucrafts-py-desktoppet-ducky-https-
 
 APP_SIGN_IDENTITY="Apple Distribution: Your Name (TEAMID)" \
 INSTALLER_SIGN_IDENTITY="3rd Party Mac Developer Installer: Your Name (TEAMID)" \
-BUNDLE_ID="com.yourname.desktopcat" \
-APP_NAME="Desktop Cat" \
+BUNDLE_ID="com.yourname.desktopcats" \
+APP_NAME="Desktop Cats" \
 APP_VERSION="1.0.0" \
 BUILD_NUMBER="1" \
 zsh packaging/build_app_store.sh
@@ -124,15 +124,15 @@ zsh packaging/build_app_store.sh
 성공하면 다음 파일이 생깁니다.
 
 ```text
-dist/Desktop Cat-1.0.0-1.pkg
+dist/Desktop Cats-1.0.0-1.pkg
 ```
 
 ## 8. 서명 검증
 
 ```bash
-codesign --verify --deep --strict --verbose=2 "dist/Desktop Cat.app"
-codesign -d --entitlements :- "dist/Desktop Cat.app"
-pkgutil --check-signature "dist/Desktop Cat-1.0.0-1.pkg"
+codesign --verify --deep --strict --verbose=2 "dist/Desktop Cats.app"
+codesign -d --entitlements :- "dist/Desktop Cats.app"
+pkgutil --check-signature "dist/Desktop Cats-1.0.0-1.pkg"
 ```
 
 확인할 것:
@@ -146,7 +146,7 @@ pkgutil --check-signature "dist/Desktop Cat-1.0.0-1.pkg"
 App Store Connect에서 새 앱을 만듭니다.
 
 - 플랫폼: macOS
-- 이름: `Desktop Cat`
+- 이름: `Desktop Cats`
 - Bundle ID: 위에서 만든 Bundle ID
 - SKU: 자유롭게 정하되 고유해야 함
 - 카테고리: Entertainment 또는 Utilities 후보
@@ -168,7 +168,7 @@ App Store Connect에서 새 앱을 만듭니다.
 현재 기능 기준 심사 노트에 적으면 좋은 내용:
 
 ```text
-Desktop Cat is a menu bar desktop pet app. It displays small animated cats on
+Desktop Cats is a menu bar desktop pet app. It displays small animated cats on
 the desktop. Users can choose House, Mode, and Layer from the menu bar icon.
 Layer > Front intentionally keeps cats above other windows, and Layer > Back
 returns them underneath normal app windows. Back is the default.
@@ -193,7 +193,7 @@ The app does not collect user data and does not use network features.
 Transporter 앱을 쓰는 방법이 가장 쉽습니다.
 
 - Transporter 설치
-- `dist/Desktop Cat-1.0.0-1.pkg` 업로드
+- `dist/Desktop Cats-1.0.0-1.pkg` 업로드
 - App Store Connect에서 빌드 처리 완료 대기
 - 해당 빌드를 앱 버전에 연결
 
@@ -202,7 +202,7 @@ Transporter 앱을 쓰는 방법이 가장 쉽습니다.
 ```bash
 xcrun altool --upload-app \
   --type macos \
-  --file "dist/Desktop Cat-1.0.0-1.pkg" \
+  --file "dist/Desktop Cats-1.0.0-1.pkg" \
   --username "APPLE_ID" \
   --password "APP_SPECIFIC_PASSWORD"
 ```

@@ -1,6 +1,6 @@
-# Desktop Pet - Cat
+# Desktop Cats
 
-This is a cat version of the original desktop ducky project. The pet uses
+Desktop Cats is a cat version of the original desktop ducky project. The pet uses
 Python and PyGame, picks random nearby, medium, or faraway points on the
 screen, and walks around with 8-directional cat animations from the included
 Free pack sprites. Cats can be switched between lazy and active personalities,

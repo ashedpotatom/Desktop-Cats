@@ -174,7 +174,7 @@ def main():
         return
 
     pygame.init()
-    pygame.display.set_caption("Desktop Cat")
+    pygame.display.set_caption("Desktop Cats")
 
     window = create_window()
     keep_on_top = configure_desktop_window()

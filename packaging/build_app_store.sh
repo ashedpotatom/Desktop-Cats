@@ -4,8 +4,8 @@ set -euo pipefail
 ROOT_DIR="${0:A:h}/.."
 cd "$ROOT_DIR"
 
-APP_NAME="${APP_NAME:-Desktop Cat}"
-BUNDLE_ID="${BUNDLE_ID:-com.example.desktopcat}"
+APP_NAME="${APP_NAME:-Desktop Cats}"
+BUNDLE_ID="${BUNDLE_ID:-com.example.desktopcats}"
 APP_VERSION="${APP_VERSION:-1.0.0}"
 BUILD_NUMBER="${BUILD_NUMBER:-1}"
 APP_PATH="dist/${APP_NAME}.app"
