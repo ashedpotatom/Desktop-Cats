@@ -189,6 +189,7 @@ def main():
     )
 
     running = True
+    pressed_cat = None
     dragged_cat = None
     drag_start_position = None
     while running:
@@ -206,21 +207,27 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 for cat in reversed(cats):
                     if cat.contains_point(event.pos):
-                        dragged_cat = cat
+                        pressed_cat = cat
                         drag_start_position = pygame.Vector2(event.pos)
                         cats.remove(cat)
                         cats.append(cat)
-                        cat.start_drag(event.pos)
                         break
-            elif event.type == pygame.MOUSEMOTION and dragged_cat:
-                dragged_cat.drag_to(event.pos)
-            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1 and dragged_cat:
-                clicked = (
-                    drag_start_position is not None
-                    and pygame.Vector2(event.pos).distance_to(drag_start_position)
-                    <= CLICK_DRAG_THRESHOLD
-                )
-                dragged_cat.end_drag(clicked=clicked)
+            elif event.type == pygame.MOUSEMOTION and pressed_cat:
+                if dragged_cat is None:
+                    moved_distance = pygame.Vector2(event.pos).distance_to(
+                        drag_start_position
+                    )
+                    if moved_distance > CLICK_DRAG_THRESHOLD:
+                        dragged_cat = pressed_cat
+                        dragged_cat.start_drag(drag_start_position)
+                if dragged_cat is not None:
+                    dragged_cat.drag_to(event.pos)
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1 and pressed_cat:
+                if dragged_cat is not None:
+                    dragged_cat.end_drag(clicked=False)
+                else:
+                    pressed_cat.register_click()
+                pressed_cat = None
                 dragged_cat = None
                 drag_start_position = None
 

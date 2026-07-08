@@ -348,6 +348,11 @@ class DesktopCat:
         self.click_times = []
         self.click_limit = 5
         self.click_window_seconds = 2.5
+        self.pointer_down = False
+        self.pointer_start_x = 0
+        self.pointer_start_y = 0
+        self.pointer_offset_x = 0
+        self.pointer_offset_y = 0
         self.dragging = False
         self.drag_started_at = 0
         self.drag_hiss_seconds = 3
@@ -470,7 +475,10 @@ class DesktopCat:
 
         mouse_position = AppKit.NSEvent.mouseLocation()
         event_window = event.window()
-        active_cat = next((cat for cat in desktop_cats if cat.dragging), None)
+        active_cat = next(
+            (cat for cat in desktop_cats if cat.dragging or cat.pointer_down),
+            None,
+        )
 
         if event_type == AppKit.NSLeftMouseDown:
             for cat in reversed(desktop_cats):
@@ -478,7 +486,7 @@ class DesktopCat:
                     desktop_cats.remove(cat)
                     desktop_cats.append(cat)
                     cat.order_for_layer()
-                    cat.start_drag(mouse_position.x, mouse_position.y)
+                    cat.start_pointer_press(mouse_position.x, mouse_position.y)
                     return True
             return False
 
@@ -486,10 +494,17 @@ class DesktopCat:
             return False
 
         if event_type == AppKit.NSLeftMouseDragged:
-            active_cat.drag_to(mouse_position.x, mouse_position.y)
+            if active_cat.dragging:
+                active_cat.drag_to(mouse_position.x, mouse_position.y)
+            elif active_cat.should_start_drag(mouse_position.x, mouse_position.y):
+                active_cat.start_drag_from_pointer()
+                active_cat.drag_to(mouse_position.x, mouse_position.y)
             return True
 
-        active_cat.end_drag(mouse_position.x, mouse_position.y, cat_bed)
+        if active_cat.dragging:
+            active_cat.end_drag(mouse_position.x, mouse_position.y, cat_bed)
+        else:
+            active_cat.end_pointer_press(mouse_position.x, mouse_position.y)
         return True
 
     def update(self, mouse_position=None):
@@ -925,7 +940,53 @@ class DesktopCat:
 
         self.image = action_frames[int(self.action_frame_index)]
 
+    def start_pointer_press(self, mouse_x, mouse_y):
+        self.pointer_down = True
+        self.pointer_start_x = mouse_x
+        self.pointer_start_y = mouse_y
+        self.pointer_offset_x = mouse_x - self.x
+        self.pointer_offset_y = mouse_y - self.y
+
+    def should_start_drag(self, mouse_x, mouse_y):
+        if not self.pointer_down:
+            return False
+        return (
+            math.hypot(
+                mouse_x - self.pointer_start_x,
+                mouse_y - self.pointer_start_y,
+            )
+            > CLICK_DRAG_THRESHOLD
+        )
+
+    def start_drag_from_pointer(self):
+        if not self.pointer_down:
+            return
+        self.dragging = True
+        self.pointer_down = False
+        self.drag_started_at = time.monotonic()
+        self.drag_hissed = False
+        self.drag_start_x = self.pointer_start_x
+        self.drag_start_y = self.pointer_start_y
+        self.drag_offset_x = self.pointer_offset_x
+        self.drag_offset_y = self.pointer_offset_y
+        self.clear_temporary_states()
+        self.target_x = self.x
+        self.target_y = self.y
+        self.show_dragged_frame()
+
+    def end_pointer_press(self, mouse_x, mouse_y):
+        if not self.pointer_down:
+            return
+        moved_distance = math.hypot(
+            mouse_x - self.pointer_start_x,
+            mouse_y - self.pointer_start_y,
+        )
+        self.pointer_down = False
+        if moved_distance <= CLICK_DRAG_THRESHOLD:
+            self.register_click()
+
     def start_drag(self, mouse_x, mouse_y):
+        self.pointer_down = False
         self.dragging = True
         self.drag_started_at = time.monotonic()
         self.drag_hissed = False
@@ -954,6 +1015,7 @@ class DesktopCat:
         moved_distance = math.hypot(mouse_x - self.drag_start_x, mouse_y - self.drag_start_y)
         dragged_for = time.monotonic() - self.drag_started_at
         self.dragging = False
+        self.pointer_down = False
         if (
             cat_bed is not None
             and moved_distance > CLICK_DRAG_THRESHOLD
@@ -988,6 +1050,7 @@ class DesktopCat:
         self.image = action_frames[int(self.action_frame_index)]
 
     def clear_temporary_states(self, clear_home=True):
+        self.pointer_down = False
         self.follow_frames = 0
         self.scatter_cooldown_frames = 0
         self.rest_frames = 0
