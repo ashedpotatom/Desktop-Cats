@@ -1,93 +1,155 @@
 # Desktop Cats
 
-Desktop Cats is a cat version of the original desktop ducky project. The pet uses
-Python and PyGame, picks random nearby, medium, or faraway points on the
-screen, and walks around with 8-directional cat animations from the included
-Free pack sprites. Cats can be switched between lazy and active personalities,
-wash more often while resting, can be dragged around, click without moving to
-trigger a silent meow animation, and sometimes yawn, scratch, hiss, or
-playfully paw attack before wandering again. They also occasionally stand on
-their hind legs.
+Desktop Cats는 화면 위를 돌아다니는 고양이 데스크톱 펫입니다.
+고양이들은 걷고, 앉고, 눕고, 세수하고, 하품하고, 잠도 잡니다.
+macOS에서는 메뉴바 아이콘으로 집, 성격, 창 레이어를 조절할 수 있습니다.
 
-## How to Run
+원본 프로젝트는 `munucrafts/PY-DesktopPet-Ducky`이고, 오리 대신 고양이로
+바꾼 버전입니다.
 
-On macOS, double-click:
+## 빠른 실행
+
+macOS에서는 아래 파일을 더블클릭하세요.
 
 ```text
 Run Desktop Cats.command
 ```
 
-The command creates a local `.venv`, installs the required Python packages, and
-then starts Desktop Cats. If Python 3 is missing, it opens the Python download
-page or tries `brew install python` when Homebrew is available. After setup, the
-Terminal window minimizes itself while the cats keep running.
+처음 실행할 때는 자동으로 다음 작업을 합니다.
 
-From Terminal, you can also run:
+- Python 3 확인
+- 필요한 Python 패키지 설치
+- 프로젝트 안에 `.venv` 실행 환경 생성
+- 고양이 실행
+- 실행 후 터미널 창 자동 최소화
+
+Python 3가 없으면 다운로드 페이지를 열거나, Homebrew가 설치되어 있으면
+`brew install python`을 시도합니다.
+
+## 터미널에서 실행
 
 ```bash
 ./Run\ Desktop\ Cats.command
 ```
 
-Show a specific number of cats:
+고양이 수를 바꾸고 싶다면 숫자를 붙입니다.
 
 ```bash
 ./Run\ Desktop\ Cats.command 5
 ```
 
-To keep the Terminal window visible for troubleshooting:
+터미널 창을 숨기지 않고 문제를 확인하고 싶다면:
 
 ```bash
 DESKTOP_CATS_KEEP_TERMINAL=1 ./Run\ Desktop\ Cats.command
 ```
 
-Press `Esc` or `Q` to close the pet.
+## 종료 방법
 
-## Notes
+macOS에서는 메뉴바의 고양이 아이콘을 클릭한 뒤 `Quit`을 누르면 종료됩니다.
 
-- Mac App Store preparation files are in `packaging/`. Start with
-  `packaging/APP_STORE_RELEASE_PLAN_KO.md` and
-  `packaging/APP_STORE_RELEASE_CHECKLIST.md` before building a signed app.
-- On macOS, the app uses tiny transparent desktop-level windows that move
-  around every connected display. Regular app windows can cover the cats, so
-  they pass underneath active windows instead of walking over them.
-- On Windows, the app uses a transparent, always-on-top borderless window so
-  the cat can roam over the desktop.
-- On other operating systems, PyGame opens a borderless preview window.
-- Change `CAT_COUNT` in `main.py`, pass `--cats`, or set
-  `DESKTOP_CAT_COUNT` to control how many cats appear.
-- Change `CAT_VARIANTS` in `main.py` to choose which Free pack cat sheets are
-  used.
-- The base cat size is 40% smaller than the original version, and it scales up
-  gently on larger screens.
-- On macOS, the menu bar cat icon has `House`, `Mode`, and `Layer`. Use
-  `Mode` to choose `Lazy Cat` or `Active Cat`. Lazy cats rest about 70% of the
-  time and move about 30% of the time, mostly with short walks. Active cats move
-  about 70% of the time, with a mix of short walks and longer dashes.
-- Use `Layer` to choose `Front` or `Back`. `Front` pins cats above other
-  windows, while `Back` sends them underneath normal app windows.
-- Click a cat to play a silent meow animation. The click can use `meow sit`,
-  `meow stand`, `meow sit 2`, or `meow lie`.
-- Resting cats have a higher chance to wash themselves using the matching
-  `wash sit`, `wash stand`, or `wash lie` animation, repeated 1 to 3 times.
-- Drag a cat to move it. While dragging, it uses the unnamed frame below
-  `hiss (r)` in the Free pack reference sheet.
-- Clicking too many times quickly or holding a drag for 3 seconds makes the cat
-  hiss 2 to 3 times.
-- On macOS, click the menu bar cat icon and choose `House` to show the cat bed.
-  The bed is scaled larger than the cats and targets the visible center of the
-  bed art, so cats can tuck into it before sleeping with a random `sleep 1`,
-  `sleep 2`, `sleep 3`, or `sleep 4` animation. Sleep animations breathe more
-  slowly than other actions. If no cats are going to or sleeping in the bed, the
-  bed hides until `House` is chosen again.
-- If a sleeping cat is dragged awake and dropped back onto the visible bed, it
-  sleeps again where it was dropped instead of snapping to the bed center.
+PyGame 미리보기 창으로 실행되는 환경에서는 `Esc` 또는 `Q`를 눌러 종료할 수
+있습니다.
 
-On macOS, stop the cat by pressing `Control+C` in the Terminal window that
-started it, or by closing that Terminal window.
+## 메뉴 기능
 
-## Credits
+macOS 메뉴바 고양이 아이콘을 누르면 다음 메뉴가 나옵니다.
 
-Based on `munucrafts/PY-DesktopPet-Ducky`.
+- `House`: 고양이 집을 보여주고, 고양이들이 집으로 가서 잡니다.
+- `Mode > Lazy Cat`: 70% 정도는 쉬고, 30% 정도만 움직이는 느긋한 성격입니다.
+- `Mode > Active Cat`: 70% 정도는 움직이고, 30% 정도만 쉬는 활발한 성격입니다.
+- `Layer > Front`: 고양이를 다른 창보다 앞으로 올립니다.
+- `Layer > Back`: 고양이를 일반 앱 창 뒤쪽으로 보냅니다.
+- `Quit`: 앱을 종료합니다.
 
-Cat sprite sheets are from the local `Free pack` folder provided with this
-project. See `ASSET_CREDITS.md` for details.
+## 고양이 행동
+
+- 단일 클릭: 조용한 `meow` 애니메이션을 합니다.
+- 드래그 앤 드롭: 고양이를 잡아서 원하는 위치로 옮길 수 있습니다.
+- 많이 클릭하거나 3초 이상 잡고 있으면: `hiss` 행동을 합니다.
+- 오래 돌아다니면: 하품합니다.
+- 쉬는 중에는: 앉거나 웅크리거나 누워 있고, 가끔 세수합니다.
+- 가끔 긁기, 장난치는 공격, 뒷발로 서기 행동도 합니다.
+- 집 위에 놓으면: 그 위치에서 잠듭니다.
+
+## 화면 동작
+
+macOS에서는 여러 개의 연결된 디스플레이를 인식합니다.
+고양이는 메인 화면뿐 아니라 확장된 화면까지 돌아다닐 수 있습니다.
+
+기본 레이어는 `Back`입니다. 그래서 일반 앱 창이 고양이를 덮을 수 있고,
+고양이는 창 위를 무조건 덮고 지나가지 않습니다. 항상 앞에 보이게 하고 싶다면
+메뉴에서 `Layer > Front`를 선택하세요.
+
+## 문제가 생겼을 때
+
+### `Run Desktop Cats.command`가 열리지 않을 때
+
+macOS 보안 설정 때문에 처음 실행이 막힐 수 있습니다.
+그럴 때는 파일을 오른쪽 클릭한 뒤 `열기`를 선택하세요.
+
+### Python이 없다고 나올 때
+
+아래 페이지에서 Python 3를 설치한 뒤 다시 실행하세요.
+
+```text
+https://www.python.org/downloads/macos/
+```
+
+Homebrew를 쓰고 있다면 터미널에서 아래 명령으로 설치할 수도 있습니다.
+
+```bash
+brew install python
+```
+
+### 패키지 설치가 실패할 때
+
+인터넷 연결을 확인한 뒤 다시 실행하세요.
+계속 실패하면 터미널을 숨기지 않는 모드로 실행해서 오류 메시지를 확인합니다.
+
+```bash
+DESKTOP_CATS_KEEP_TERMINAL=1 ./Run\ Desktop\ Cats.command
+```
+
+### 고양이가 안 보일 때
+
+- 메뉴바에 고양이 아이콘이 있는지 확인하세요.
+- `Layer > Front`를 눌러 고양이를 앞으로 올려보세요.
+- 여러 모니터를 쓰고 있다면 다른 화면에 있는지 확인하세요.
+
+## 개발자용 실행
+
+직접 개발하거나 코드를 수정할 때는 아래처럼 실행할 수 있습니다.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python main.py
+```
+
+고양이 수 지정:
+
+```bash
+python main.py --cats 5
+```
+
+## App Store 준비
+
+Mac App Store 배포 준비 문서는 `packaging/` 폴더에 있습니다.
+
+- `packaging/APP_STORE_RELEASE_PLAN_KO.md`
+- `packaging/APP_STORE_RELEASE_CHECKLIST.md`
+
+App Store에 올리려면 Apple Developer Program 가입, Bundle ID, 인증서, 서명,
+패키징 과정이 추가로 필요합니다.
+
+## 사용한 에셋
+
+고양이 스프라이트는 로컬 `Free pack` 폴더의 LPC Cats and Dogs 계열 이미지를
+사용했습니다. 고양이 집과 메뉴바 아이콘도 사용자가 제공한 로컬 파일을
+프로젝트에 포함했습니다.
+
+자세한 출처는 `ASSET_CREDITS.md`를 확인하세요.
+
+재배포 전에는 원본 에셋의 라이선스와 attribution 조건을 반드시 확인하세요.
