@@ -71,6 +71,24 @@ if platform.system() == "Darwin":
 PY
 }
 
+hide_terminal_window() {
+  if [[ "${DESKTOP_CATS_KEEP_TERMINAL:-0}" == "1" ]]; then
+    return
+  fi
+
+  if [[ "$(uname -s)" != "Darwin" ]]; then
+    return
+  fi
+
+  osascript <<'APPLESCRIPT' >/dev/null 2>&1 || true
+if application "Terminal" is running then
+  tell application "Terminal"
+    if (count of windows) > 0 then set miniaturized of front window to true
+  end tell
+end if
+APPLESCRIPT
+}
+
 cd "$APP_DIR" || fail "앱 폴더로 이동할 수 없습니다."
 
 if [[ ! -f "main.py" || ! -f "requirements.txt" ]]; then
@@ -122,5 +140,8 @@ if ! check_required_modules >/dev/null 2>&1; then
 fi
 
 echo "고양이 ${CAT_COUNT}마리를 실행합니다."
-echo "종료하려면 메뉴바 고양이 아이콘에서 Quit을 누르거나 이 터미널 창을 닫으세요."
+echo "잠시 후 터미널 창은 자동으로 최소화됩니다."
+echo "종료하려면 메뉴바 고양이 아이콘에서 Quit을 누르세요."
+sleep 1
+hide_terminal_window
 python main.py --cats "$CAT_COUNT"

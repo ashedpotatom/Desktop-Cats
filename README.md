@@ -19,7 +19,8 @@ Run Desktop Cats.command
 
 The command creates a local `.venv`, installs the required Python packages, and
 then starts Desktop Cats. If Python 3 is missing, it opens the Python download
-page or tries `brew install python` when Homebrew is available.
+page or tries `brew install python` when Homebrew is available. After setup, the
+Terminal window minimizes itself while the cats keep running.
 
 From Terminal, you can also run:
 
@@ -31,6 +32,12 @@ Show a specific number of cats:
 
 ```bash
 ./Run\ Desktop\ Cats.command 5
+```
+
+To keep the Terminal window visible for troubleshooting:
+
+```bash
+DESKTOP_CATS_KEEP_TERMINAL=1 ./Run\ Desktop\ Cats.command
 ```
 
 Press `Esc` or `Q` to close the pet.
