@@ -133,15 +133,7 @@ python main.py
 python main.py --cats 5
 ```
 
-## App Store 준비
-
-Mac App Store 배포 준비 문서는 `packaging/` 폴더에 있습니다.
-
-- `packaging/APP_STORE_RELEASE_PLAN_KO.md`
-- `packaging/APP_STORE_RELEASE_CHECKLIST.md`
-
-App Store에 올리려면 Apple Developer Program 가입, Bundle ID, 인증서, 서명,
-패키징 과정이 추가로 필요합니다.
+고양이 수는 최소 1마리, 최대 20마리까지만 실행됩니다.
 
 ## 출처 및 라이선스
 

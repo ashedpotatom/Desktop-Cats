@@ -33,6 +33,8 @@ ORIGINAL_CAT_SCALE = 3
 CAT_SCALE = ORIGINAL_CAT_SCALE * 0.6
 MAX_CAT_SCALE = ORIGINAL_CAT_SCALE * 0.9
 CAT_COUNT = 3
+MIN_CAT_COUNT = 1
+MAX_CAT_COUNT = 20
 REFERENCE_SCREEN = (1440, 900)
 TRANSPARENCY_COLOR = (255, 0, 255)
 PREVIEW_BACKGROUND = (28, 28, 32)
@@ -109,7 +111,11 @@ def get_cat_count():
         help="number of cats to show",
     )
     args = parser.parse_args()
-    return max(1, min(args.cats, 20))
+    return clamp_cat_count(args.cats)
+
+
+def clamp_cat_count(count):
+    return max(MIN_CAT_COUNT, min(count, MAX_CAT_COUNT))
 
 
 def get_random_start_position(window, image):

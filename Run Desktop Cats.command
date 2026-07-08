@@ -4,8 +4,30 @@ set -u
 APP_NAME="Desktop Cats"
 SCRIPT_DIR="${0:A:h}"
 APP_DIR="$SCRIPT_DIR"
-CAT_COUNT="${1:-${DESKTOP_CAT_COUNT:-3}}"
+DEFAULT_CAT_COUNT=3
+MIN_CAT_COUNT=1
+MAX_CAT_COUNT=20
+CAT_COUNT_REQUEST="${1:-${DESKTOP_CAT_COUNT:-$DEFAULT_CAT_COUNT}}"
 VENV_DIR="$APP_DIR/.venv"
+
+normalize_cat_count() {
+  local requested="${1:-$DEFAULT_CAT_COUNT}"
+
+  if ! [[ "$requested" =~ '^-?[0-9]+$' ]]; then
+    echo "$DEFAULT_CAT_COUNT"
+    return
+  fi
+
+  if (( requested < MIN_CAT_COUNT )); then
+    echo "$MIN_CAT_COUNT"
+  elif (( requested > MAX_CAT_COUNT )); then
+    echo "$MAX_CAT_COUNT"
+  else
+    echo "$requested"
+  fi
+}
+
+CAT_COUNT="$(normalize_cat_count "$CAT_COUNT_REQUEST")"
 
 pause_before_exit() {
   echo

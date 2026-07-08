@@ -86,6 +86,8 @@ PERSONALITY_PRESETS = {
     },
 }
 CLICK_DRAG_THRESHOLD = 6
+MIN_CAT_COUNT = 1
+MAX_CAT_COUNT = 20
 PET_BACK_WINDOW_LEVEL = Quartz.CGWindowLevelForKey(Quartz.kCGNormalWindowLevelKey) - 1
 PET_FRONT_WINDOW_LEVEL = Quartz.CGWindowLevelForKey(Quartz.kCGScreenSaverWindowLevelKey)
 PET_WINDOW_LEVEL = PET_BACK_WINDOW_LEVEL
@@ -95,6 +97,10 @@ BED_SLEEP_WIDTH_RATIO = 0.84
 
 def window_level_for_layer(layer):
     return PET_FRONT_WINDOW_LEVEL if layer == "front" else PET_BACK_WINDOW_LEVEL
+
+
+def clamp_cat_count(count):
+    return max(MIN_CAT_COUNT, min(count, MAX_CAT_COUNT))
 
 
 def get_visible_screen_frames():
@@ -208,6 +214,7 @@ def run_mac_desktop_cat(
     sprite_sheets = [Path(sprite_sheet) for sprite_sheet in sprite_sheets]
     bed_image = Path(bed_image)
     menu_icon = Path(menu_icon)
+    cat_count = clamp_cat_count(cat_count)
 
     with tempfile.TemporaryDirectory(prefix="desktop-cat-") as frame_dir:
         frame_cache = {}
@@ -225,7 +232,7 @@ def run_mac_desktop_cat(
         )
 
         desktop_cats = []
-        for index in range(max(1, cat_count)):
+        for index in range(cat_count):
             sprite_sheet = sprite_sheets[index % len(sprite_sheets)]
             if sprite_sheet not in frame_cache:
                 frame_cache[sprite_sheet] = load_nsimage_frames(
