@@ -555,13 +555,11 @@ class Cat:
     def get_meow_key_for_pose(self):
         if self.rest_key == "stand":
             return "meow_stand"
-        if self.rest_key == "sit2":
-            return "meow_sit2"
         if self.rest_key == "lie":
             return "meow_lie"
-        if self.rest_key == "sit":
+        if self.rest_key in ("sit", "sit2"):
             return "meow_sit"
-        return random.choice(("meow_sit", "meow_stand", "meow_sit2", "meow_lie"))
+        return "meow_stand"
 
     def start_random_idle_action(self):
         action_key = random.choices(
