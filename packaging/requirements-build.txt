@@ -1,0 +1,3 @@
+py2app>=0.28
+setuptools>=70
+wheel>=0.43

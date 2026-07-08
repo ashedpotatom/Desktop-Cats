@@ -1,0 +1,4 @@
+pygame>=2.5
+pyobjc-framework-Cocoa>=10; platform_system == "Darwin"
+pyobjc-framework-Quartz>=10; platform_system == "Darwin"
+pywin32>=306; platform_system == "Windows"

@@ -1,102 +1,237 @@
+from pathlib import Path
+from argparse import ArgumentParser
+import os
+import platform
+import random
+import sys
+
 import pygame
-import math
-import ctypes
-import win32gui
-import win32con
-from ducky import ducky
 
-#init
-pygame.init()
-pygame.mixer.init()
+from cat import Cat, load_cat_frames
 
-#Create Fullscreen Window
-pygame.display.set_caption("Desktop Ducky")
-WINDOW = pygame.display.set_mode((0, 0), pygame.NOFRAME)
 
-#Make window layered
-hwnd = pygame.display.get_wm_info()["window"]
-ctypes.windll.user32.SetWindowLongW(hwnd, -20, ctypes.windll.user32.GetWindowLongW(hwnd, -20) | 0x80000)
+def get_base_dir():
+    resource_path = os.environ.get("RESOURCEPATH")
+    if resource_path:
+        return Path(resource_path)
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parents[1] / "Resources"
+    return Path(__file__).resolve().parent
 
-# Make the entire window transparent
-transparency_color = (0, 0, 0)
-color_key = (transparency_color[2] << 16) | (transparency_color[1] << 8) | transparency_color[0]
-ctypes.windll.user32.SetLayeredWindowAttributes(hwnd, color_key, 0, 0x00000001)
 
-#set framerate
-clock = pygame.time.Clock()
+BASE_DIR = get_base_dir()
+CAT_ASSET_DIR = BASE_DIR / "Assets" / "Sprites" / "free_pack"
+CAT_BED_IMAGE = BASE_DIR / "Assets" / "House" / "cat_bed_blue.png"
+MENU_BAR_ICON = BASE_DIR / "Assets" / "MenuBar" / "cat_icon.png"
+CAT_VARIANTS = (
+    "cat_1.png",
+    "cat_1_6.png",
+    "cat_1_9.png",
+)
 FPS = 60
+ORIGINAL_CAT_SCALE = 3
+CAT_SCALE = ORIGINAL_CAT_SCALE * 0.6
+MAX_CAT_SCALE = ORIGINAL_CAT_SCALE * 0.9
+CAT_COUNT = 3
+REFERENCE_SCREEN = (1440, 900)
+TRANSPARENCY_COLOR = (255, 0, 255)
+PREVIEW_BACKGROUND = (28, 28, 32)
+CLICK_DRAG_THRESHOLD = 6
 
-#Load all Ducky Idle Sprites
-DUCKY_IDLE_01 = pygame.transform.scale(pygame.image.load("Assets\Sprites\idle\idle01.png"), (100, 100))
-DUCKY_IDLE_02 = pygame.transform.scale(pygame.image.load("Assets\Sprites\idle\idle02.png"), (100, 100))
-DUCKY_IDLE_ARRAY = [DUCKY_IDLE_01, DUCKY_IDLE_02]
 
-#Load all Ducky walk Sprites
-DUCKY_WALK_01 = pygame.transform.scale(pygame.image.load("Assets\Sprites\walk\walk01.png"), (100, 100))
-DUCKY_WALK_02 = pygame.transform.scale(pygame.image.load("Assets\Sprites\walk\walk02.png"), (100, 100))
-DUCKY_WALK_03 = pygame.transform.scale(pygame.image.load("Assets\Sprites\walk\walk03.png"), (100, 100))
-DUCKY_WALK_04 = pygame.transform.scale(pygame.image.load("Assets\Sprites\walk\walk04.png"), (100, 100))
-DUCKY_WALK_05 = pygame.transform.scale(pygame.image.load("Assets\Sprites\walk\walk05.png"), (100, 100))
-DUCKY_WALK_06 = pygame.transform.scale(pygame.image.load("Assets\Sprites\walk\walk06.png"), (100, 100))
-DUCKY_WALK_ARRAY = [DUCKY_WALK_01, DUCKY_WALK_02, DUCKY_WALK_03, DUCKY_WALK_04, DUCKY_WALK_05, DUCKY_WALK_06]
+def create_window():
+    screen = pygame.display.Info()
+    screen_size = (screen.current_w, screen.current_h)
 
-#Load Quack Image and Sound
-QUACK_IMAGE = pygame.transform.scale(pygame.image.load("Assets\Sprites\quack\quack01.png"), (100, 100))
-QUACK_SOUND = pygame.mixer.Sound("Assets\Sounds\quack_sound.mp3")
-QUACK_FAST_SOUND = pygame.mixer.Sound("Assets\Sounds\quack_fast_sound.mp3")
+    if platform.system() == "Windows":
+        return pygame.display.set_mode(screen_size, pygame.NOFRAME)
 
-#Create a Ducky instance
-ducky_instantce = ducky(WINDOW, DUCKY_IDLE_01, (900, 400), QUACK_IMAGE)
-move = True
-amim = DUCKY_WALK_ARRAY
-anim_speed = 0.15
-quack_audio = None
-quack_angry_audio = None
-quack_particle = None
-allow_angry_quack = False
+    preview_size = (
+        min(900, screen.current_w),
+        min(600, screen.current_h),
+    )
+    return pygame.display.set_mode(preview_size, pygame.NOFRAME)
 
-#Game Loop with 60 FPS
-run = True
-transparent_surface = pygame.Surface(WINDOW.get_size())
-transparent_surface.fill((0, 0, 0))
 
-while run:
-    clock.tick(FPS)
+def configure_desktop_window():
+    if platform.system() != "Windows":
+        return lambda: None
 
-    #Keep Window on Top
-    win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOSIZE)
+    try:
+        import ctypes
+        import win32con
+        import win32gui
+    except ImportError:
+        print("Install pywin32 for the transparent desktop window on Windows.")
+        return lambda: None
 
-    #Draw TransparentCircle Surface Behind the Ducky
-    WINDOW.blit(transparent_surface, ducky_instantce.position, ducky_instantce.image.get_rect())
-    
-    #Event handler
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            move = False
-            amim = DUCKY_IDLE_ARRAY
-            anim_speed = 0.07
-            quack_audio = QUACK_SOUND
-            quack_angry_audio = QUACK_FAST_SOUND
-            quack_particle = QUACK_IMAGE
-            allow_angry_quack = True
-        elif event.type == pygame.MOUSEBUTTONUP:
-            move = True
-            amim = DUCKY_WALK_ARRAY
-            anim_speed = 0.15
-            quack_audio = None
-            quack_angry_audio = None
-            quack_particle = None
-            allow_angry_quack = False
-            WINDOW.fill((0, 0 ,0))
-  
-    #Move to Random Locations, set animations, play sound
-    ducky_instantce.move_to_next_location(move)
-    ducky_instantce.play_animation(amim, anim_speed)
-    ducky_instantce.play_quack_sound(quack_audio, quack_angry_audio)
-    ducky_instantce.quack_is_angry(quack_particle, allow_angry_quack)
-    
-    pygame.display.update()
+    hwnd = pygame.display.get_wm_info().get("window")
+    if not hwnd:
+        return lambda: None
 
-pygame.quit()
+    user32 = ctypes.windll.user32
+    layered_window = 0x80000
+    current_style = user32.GetWindowLongW(hwnd, -20)
+    user32.SetWindowLongW(hwnd, -20, current_style | layered_window)
+
+    color_key = (
+        TRANSPARENCY_COLOR[0]
+        | (TRANSPARENCY_COLOR[1] << 8)
+        | (TRANSPARENCY_COLOR[2] << 16)
+    )
+    user32.SetLayeredWindowAttributes(hwnd, color_key, 0, 0x00000001)
+
+    def keep_on_top():
+        win32gui.SetWindowPos(
+            hwnd,
+            win32con.HWND_TOPMOST,
+            0,
+            0,
+            0,
+            0,
+            win32con.SWP_NOMOVE | win32con.SWP_NOSIZE,
+        )
+
+    return keep_on_top
+
+
+def get_cat_count():
+    try:
+        default_count = int(os.environ.get("DESKTOP_CAT_COUNT", CAT_COUNT))
+    except ValueError:
+        default_count = CAT_COUNT
+
+    parser = ArgumentParser(description="Run desktop cats.")
+    parser.add_argument(
+        "--cats",
+        type=int,
+        default=default_count,
+        help="number of cats to show",
+    )
+    args = parser.parse_args()
+    return max(1, min(args.cats, 20))
+
+
+def get_random_start_position(window, image):
+    max_x = max(0, window.get_width() - image.get_width())
+    max_y = max(0, window.get_height() - image.get_height())
+    return (
+        random.randint(0, max_x),
+        random.randint(0, max_y),
+    )
+
+
+def get_responsive_cat_scale(width, height):
+    screen_factor = min(width / REFERENCE_SCREEN[0], height / REFERENCE_SCREEN[1])
+    if screen_factor <= 1:
+        return CAT_SCALE
+    return min(MAX_CAT_SCALE, CAT_SCALE * (screen_factor ** 0.35))
+
+
+def create_cats(window, count, cat_scale):
+    frame_cache = {}
+    cats = []
+
+    for index in range(count):
+        variant = CAT_VARIANTS[index % len(CAT_VARIANTS)]
+        sprite_path = CAT_ASSET_DIR / variant
+        if sprite_path not in frame_cache:
+            frame_cache[sprite_path] = load_cat_frames(
+                sprite_path,
+                scale=cat_scale,
+            )
+
+        frames = frame_cache[sprite_path]
+        start_position = get_random_start_position(window, frames["down"][0])
+        cats.append(
+            Cat(
+                window,
+                frames,
+                start_position,
+                fps=FPS,
+            )
+        )
+
+    return cats
+
+
+def main():
+    cat_count = get_cat_count()
+
+    if platform.system() == "Darwin":
+        from mac_desktop_cat import run_mac_desktop_cat
+
+        run_mac_desktop_cat(
+            [CAT_ASSET_DIR / variant for variant in CAT_VARIANTS],
+            bed_image=CAT_BED_IMAGE,
+            menu_icon=MENU_BAR_ICON,
+            scale=CAT_SCALE,
+            max_scale=MAX_CAT_SCALE,
+            cat_count=cat_count,
+            reference_screen=REFERENCE_SCREEN,
+            fps=FPS,
+        )
+        return
+
+    pygame.init()
+    pygame.display.set_caption("Desktop Cat")
+
+    window = create_window()
+    keep_on_top = configure_desktop_window()
+    clock = pygame.time.Clock()
+    cat_scale = get_responsive_cat_scale(window.get_width(), window.get_height())
+    cats = create_cats(window, cat_count, cat_scale)
+
+    background = (
+        TRANSPARENCY_COLOR
+        if platform.system() == "Windows"
+        else PREVIEW_BACKGROUND
+    )
+
+    running = True
+    dragged_cat = None
+    drag_start_position = None
+    while running:
+        clock.tick(FPS)
+        keep_on_top()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif (
+                event.type == pygame.KEYDOWN
+                and event.key in (pygame.K_ESCAPE, pygame.K_q)
+            ):
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                for cat in reversed(cats):
+                    if cat.contains_point(event.pos):
+                        dragged_cat = cat
+                        drag_start_position = pygame.Vector2(event.pos)
+                        cats.remove(cat)
+                        cats.append(cat)
+                        cat.start_drag(event.pos)
+                        break
+            elif event.type == pygame.MOUSEMOTION and dragged_cat:
+                dragged_cat.drag_to(event.pos)
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1 and dragged_cat:
+                clicked = (
+                    drag_start_position is not None
+                    and pygame.Vector2(event.pos).distance_to(drag_start_position)
+                    <= CLICK_DRAG_THRESHOLD
+                )
+                dragged_cat.end_drag(clicked=clicked)
+                dragged_cat = None
+                drag_start_position = None
+
+        window.fill(background)
+        for cat in cats:
+            cat.update()
+            cat.draw()
+        pygame.display.update()
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()
