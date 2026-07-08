@@ -112,6 +112,20 @@ def get_largest_screen_size(screen_frames):
     return screen_frame.size.width, screen_frame.size.height
 
 
+def get_screen_frames_signature(screen_frames):
+    return tuple(
+        sorted(
+            (
+                frame.origin.x,
+                frame.origin.y,
+                frame.size.width,
+                frame.size.height,
+            )
+            for frame in screen_frames
+        )
+    )
+
+
 def get_window_position_bounds(screen_frames, width, height):
     bounds = []
     for frame in screen_frames:
@@ -404,6 +418,11 @@ class DesktopCat:
             self.window.orderFront_(None)
 
     def set_screen_frames(self, screen_frames):
+        screen_signature = get_screen_frames_signature(screen_frames)
+        if getattr(self, "screen_signature", None) == screen_signature:
+            return
+
+        self.screen_signature = screen_signature
         self.screen_frames = screen_frames
         self.position_bounds = get_window_position_bounds(
             self.screen_frames,
@@ -1185,6 +1204,11 @@ class CatBedWindow:
         self.visible_center_y = surface.get_height() - (top + (bottom - top) / 2)
 
     def set_screen_frames(self, screen_frames):
+        screen_signature = get_screen_frames_signature(screen_frames)
+        if getattr(self, "screen_signature", None) == screen_signature:
+            return
+
+        self.screen_signature = screen_signature
         self.screen_frames = screen_frames
         self.position_bounds = get_window_position_bounds(
             self.screen_frames,
