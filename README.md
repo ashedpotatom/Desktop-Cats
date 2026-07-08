@@ -11,15 +11,26 @@ their hind legs.
 
 ## How to Run
 
+On macOS, double-click:
+
+```text
+Run Desktop Cats.command
+```
+
+The command creates a local `.venv`, installs the required Python packages, and
+then starts Desktop Cats. If Python 3 is missing, it opens the Python download
+page or tries `brew install python` when Homebrew is available.
+
+From Terminal, you can also run:
+
 ```bash
-pip install -r requirements.txt
-python main.py
+./Run\ Desktop\ Cats.command
 ```
 
 Show a specific number of cats:
 
 ```bash
-python main.py --cats 5
+./Run\ Desktop\ Cats.command 5
 ```
 
 Press `Esc` or `Q` to close the pet.
