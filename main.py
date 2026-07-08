@@ -207,6 +207,10 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 for cat in reversed(cats):
                     if cat.contains_point(event.pos):
+                        if cat.is_hissing():
+                            pressed_cat = None
+                            drag_start_position = None
+                            break
                         pressed_cat = cat
                         drag_start_position = pygame.Vector2(event.pos)
                         cats.remove(cat)
@@ -218,8 +222,11 @@ def main():
                         drag_start_position
                     )
                     if moved_distance > CLICK_DRAG_THRESHOLD:
-                        dragged_cat = pressed_cat
-                        dragged_cat.start_drag(drag_start_position)
+                        if pressed_cat.start_drag(drag_start_position):
+                            dragged_cat = pressed_cat
+                        else:
+                            pressed_cat = None
+                            drag_start_position = None
                 if dragged_cat is not None:
                     dragged_cat.drag_to(event.pos)
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1 and pressed_cat:

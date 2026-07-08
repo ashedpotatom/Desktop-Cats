@@ -350,6 +350,8 @@ class Cat:
         return self.image.get_rect(topleft=self.position).collidepoint(point)
 
     def start_drag(self, mouse_position):
+        if self.is_hissing():
+            return False
         mouse_position = pygame.Vector2(mouse_position)
         self.dragging = True
         self.drag_started_at = time.monotonic()
@@ -358,15 +360,18 @@ class Cat:
         self.clear_temporary_states()
         self.target_position = self.position.copy()
         self.show_dragged_frame()
+        return True
 
     def drag_to(self, mouse_position):
-        if not self.dragging:
+        if not self.dragging or self.is_hissing():
             return
         mouse_position = pygame.Vector2(mouse_position)
         self.position = self.get_clamped_position(mouse_position - self.drag_offset)
         self.target_position = self.position.copy()
 
     def end_drag(self, clicked=False):
+        if not self.dragging:
+            return
         dragged_for = time.monotonic() - self.drag_started_at
         self.dragging = False
         if self.drag_hissed or dragged_for >= self.drag_hiss_seconds:
@@ -601,10 +606,17 @@ class Cat:
         return "scratch_left" if self.is_facing_left() else "scratch_right"
 
     def start_hiss(self):
+        if self.dragging:
+            self.dragging = False
+            self.drag_hissed = True
+            self.target_position = self.position.copy()
         self.start_action(self.get_hiss_key(), loops=random.randint(2, 3))
 
     def get_hiss_key(self):
         return "hiss_left" if self.is_facing_left() else "hiss_right"
+
+    def is_hissing(self):
+        return self.action_key in ("hiss_left", "hiss_right")
 
     def get_paw_attack_key(self):
         return f"paw_attack_{self.direction}"
@@ -653,8 +665,7 @@ class Cat:
 
     def update_dragging_image(self):
         if time.monotonic() - self.drag_started_at >= self.drag_hiss_seconds:
-            self.drag_hissed = True
-            self.show_looping_action(self.get_hiss_key())
+            self.start_hiss()
         else:
             self.show_dragged_frame()
 

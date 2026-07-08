@@ -483,6 +483,8 @@ class DesktopCat:
         if event_type == AppKit.NSLeftMouseDown:
             for cat in reversed(desktop_cats):
                 if cat.window == event_window:
+                    if cat.is_hissing():
+                        return True
                     desktop_cats.remove(cat)
                     desktop_cats.append(cat)
                     cat.order_for_layer()
@@ -888,10 +890,19 @@ class DesktopCat:
         return "scratch_left" if self.is_facing_left() else "scratch_right"
 
     def start_hiss(self):
+        if self.dragging:
+            self.dragging = False
+            self.drag_hissed = True
+            self.target_x = self.x
+            self.target_y = self.y
+        self.pointer_down = False
         self.start_action(self.get_hiss_key(), loops=random.randint(2, 3))
 
     def get_hiss_key(self):
         return "hiss_left" if self.is_facing_left() else "hiss_right"
+
+    def is_hissing(self):
+        return self.action_key in ("hiss_left", "hiss_right")
 
     def get_paw_attack_key(self):
         return f"paw_attack_{self.direction}"
@@ -939,14 +950,17 @@ class DesktopCat:
         self.image = action_frames[int(self.action_frame_index)]
 
     def start_pointer_press(self, mouse_x, mouse_y):
+        if self.is_hissing():
+            return False
         self.pointer_down = True
         self.pointer_start_x = mouse_x
         self.pointer_start_y = mouse_y
         self.pointer_offset_x = mouse_x - self.x
         self.pointer_offset_y = mouse_y - self.y
+        return True
 
     def should_start_drag(self, mouse_x, mouse_y):
-        if not self.pointer_down:
+        if not self.pointer_down or self.is_hissing():
             return False
         return (
             math.hypot(
@@ -957,8 +971,8 @@ class DesktopCat:
         )
 
     def start_drag_from_pointer(self):
-        if not self.pointer_down:
-            return
+        if not self.pointer_down or self.is_hissing():
+            return False
         self.dragging = True
         self.pointer_down = False
         self.drag_started_at = time.monotonic()
@@ -971,6 +985,7 @@ class DesktopCat:
         self.target_x = self.x
         self.target_y = self.y
         self.show_dragged_frame()
+        return True
 
     def end_pointer_press(self, mouse_x, mouse_y):
         if not self.pointer_down:
@@ -984,6 +999,8 @@ class DesktopCat:
             self.register_click()
 
     def start_drag(self, mouse_x, mouse_y):
+        if self.is_hissing():
+            return False
         self.pointer_down = False
         self.dragging = True
         self.drag_started_at = time.monotonic()
@@ -996,9 +1013,10 @@ class DesktopCat:
         self.target_x = self.x
         self.target_y = self.y
         self.show_dragged_frame()
+        return True
 
     def drag_to(self, mouse_x, mouse_y):
-        if not self.dragging:
+        if not self.dragging or self.is_hissing():
             return
         self.x, self.y = self.get_clamped_position(
             mouse_x - self.drag_offset_x,
@@ -1032,8 +1050,7 @@ class DesktopCat:
 
     def update_dragging_image(self):
         if time.monotonic() - self.drag_started_at >= self.drag_hiss_seconds:
-            self.drag_hissed = True
-            self.show_looping_action(self.get_hiss_key())
+            self.start_hiss()
         else:
             self.show_dragged_frame()
 
